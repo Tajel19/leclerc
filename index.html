@@ -26,46 +26,53 @@
             font-size: 24px;
             margin-bottom: 5px;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .image-container {
             margin: 15px 0;
         }
         #leclerc { 
-            width: 220px; 
-            height: 220px;
+            width: 240px; 
+            height: 240px;
             cursor: pointer; 
             transition: transform 0.05s ease; 
             border-radius: 50%; 
             border: 5px solid #e00000;
+            
+            /* УЛУЧШЕНИЕ КАЧЕСТВА: */
             object-fit: cover;
-            box-shadow: 0 0 25px rgba(224, 0, 0, 0.5);
+            image-rendering: -webkit-optimize-contrast; /* Для высокой четкости на iOS/Mac */
+            image-rendering: crisp-edges;               /* Для четких краев */
+            
+            box-shadow: 0 0 30px rgba(224, 0, 0, 0.6);
             -webkit-tap-highlight-color: transparent;
         }
         #leclerc:active { 
-            transform: scale(0.94); 
+            transform: scale(0.92); 
         }
         .stats { 
-            font-size: 20px; 
+            font-size: 22px; 
             margin: 15px 0; 
             font-weight: 600;
         }
         .stats span { 
             color: #e00000; 
+            text-shadow: 0 0 10px rgba(224, 0, 0, 0.3);
         }
         button { 
-            padding: 15px 30px; 
+            padding: 16px 32px; 
             background: #e00000; 
             color: white; 
             border: none; 
-            border-radius: 12px; 
-            font-size: 17px;
+            border-radius: 14px; 
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer; 
-            box-shadow: 0 4px 15px rgba(224, 0, 0, 0.3);
+            box-shadow: 0 5px 15px rgba(224, 0, 0, 0.4);
             -webkit-tap-highlight-color: transparent;
         }
         button:active { 
-            transform: scale(0.97);
+            transform: scale(0.96);
             background: #b30000;
         }
     </style>
