@@ -38,11 +38,9 @@
             transition: transform 0.05s ease; 
             border-radius: 50%; 
             border: 5px solid #e00000;
-            
             object-fit: cover;
             image-rendering: -webkit-optimize-contrast;
             image-rendering: crisp-edges;
-            
             box-shadow: 0 0 30px rgba(224, 0, 0, 0.6);
             -webkit-tap-highlight-color: transparent;
         }
@@ -101,13 +99,16 @@
         let level = 1;
         let cost = 10;
 
-        const leclerc = document.getElementById('leclerc');
         const scoreEl = document.getElementById('score');
         const levelEl = document.getElementById('level');
         const costEl = document.getElementById('cost');
 
-        // Функция для сохранения данных в облако Telegram
+        // Функция сохранения данных
         function saveData() {
+            localStorage.setItem('leclerc_score', score.toString());
+            localStorage.setItem('leclerc_level', level.toString());
+            localStorage.setItem('leclerc_cost', cost.toString());
+
             if (tg.CloudStorage) {
                 tg.CloudStorage.setItem('score', score.toString());
                 tg.CloudStorage.setItem('level', level.toString());
@@ -115,50 +116,61 @@
             }
         }
 
-        // Функция загрузки данных при старте игры
+        // Функция загрузки данных
         function loadData() {
-            if (tg.CloudStorage) {
+            let localScore = localStorage.getItem('leclerc_score');
+            let localLevel = localStorage.getItem('leclerc_level');
+            let localCost = localStorage.getItem('leclerc_cost');
+
+            if (localScore && localLevel && localCost) {
+                score = parseInt(localScore);
+                level = parseInt(localLevel);
+                cost = parseInt(localCost);
+                updateUI();
+            } else if (tg.CloudStorage) {
                 tg.CloudStorage.getItems(['score', 'level', 'cost'], function(error, values) {
-                    if (!error) {
-                        if (values.score) score = parseInt(values.score);
-                        if (values.level) level = parseInt(values.level);
-                        if (values.cost) cost = parseInt(values.cost);
-                        
-                        // Обновляем интерфейс загруженными данными
-                        scoreEl.innerText = score;
-                        levelEl.innerText = level;
-                        costEl.innerText = cost;
+                    if (!error && values.score) {
+                        score = parseInt(values.score);
+                        level = parseInt(values.level);
+                        cost = parseInt(values.cost);
+                        updateUI();
                     }
                 });
             }
         }
 
-        // Загружаем прогресс сразу при открытии
+        function updateUI() {
+            scoreEl.innerText = score;
+            levelEl.innerText = level;
+            costEl.innerText = cost;
+        }
+
+        // Загружаем данные при старте
         loadData();
 
-        leclerc.onclick = () => {
+        // Клик по Леклеру
+        document.getElementById('leclerc').onclick = () => {
             score += level;
             scoreEl.innerText = score;
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            saveData(); // Сохраняем очки после каждого клика
         };
 
+        // Покупка апгрейда
         function upgrade() {
             if (score >= cost) {
                 score -= cost;
                 level++;
                 cost = Math.floor(cost * 1.7);
-                
-                scoreEl.innerText = score;
-                levelEl.innerText = level;
-                costEl.innerText = cost;
-                
+                updateUI();
                 if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                saveData(); // Сохраняем уровень и новую цену
+                saveData(); // Мгновенное сохранение при покупке
             } else {
                 tg.showAlert("Недостаточно очков депрессии!");
             }
         }
+
+        // Автосохранение каждые 3 секунды, чтобы не перегружать память частыми кликами
+        setInterval(saveData, 3000);
     </script>
 </body>
 </html>
