@@ -39,7 +39,6 @@
             border-radius: 50%; 
             border: 5px solid #e00000;
             
-            /* Четкое сглаживание изображения */
             object-fit: cover;
             image-rendering: -webkit-optimize-contrast;
             image-rendering: crisp-edges;
@@ -82,17 +81,16 @@
     <h1>Leclerc Clicker</h1>
     
     <div class="image-container">
-        <!-- Изменили имя файла на charles.png -->
         <img id="leclerc" src="charles.png" alt="Charles Leclerc">
     </div>
     
     <div class="stats">
         Очки депрессии: <span id="score">0</span><br>
-        Уровень болида: <span id="level">1</span>
+        Уровень депрессии: <span id="level">1</span>
     </div>
     
     <div>
-        <button onclick="upgrade()">Улучшить болид (Цена: <span id="cost">10</span>)</button>
+        <button onclick="upgrade()">Увеличить депрессию (Цена: <span id="cost">10</span>)</button>
     </div>
 
     <script>
@@ -108,10 +106,41 @@
         const levelEl = document.getElementById('level');
         const costEl = document.getElementById('cost');
 
+        // Функция для сохранения данных в облако Telegram
+        function saveData() {
+            if (tg.CloudStorage) {
+                tg.CloudStorage.setItem('score', score.toString());
+                tg.CloudStorage.setItem('level', level.toString());
+                tg.CloudStorage.setItem('cost', cost.toString());
+            }
+        }
+
+        // Функция загрузки данных при старте игры
+        function loadData() {
+            if (tg.CloudStorage) {
+                tg.CloudStorage.getItems(['score', 'level', 'cost'], function(error, values) {
+                    if (!error) {
+                        if (values.score) score = parseInt(values.score);
+                        if (values.level) level = parseInt(values.level);
+                        if (values.cost) cost = parseInt(values.cost);
+                        
+                        // Обновляем интерфейс загруженными данными
+                        scoreEl.innerText = score;
+                        levelEl.innerText = level;
+                        costEl.innerText = cost;
+                    }
+                });
+            }
+        }
+
+        // Загружаем прогресс сразу при открытии
+        loadData();
+
         leclerc.onclick = () => {
             score += level;
             scoreEl.innerText = score;
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            saveData(); // Сохраняем очки после каждого клика
         };
 
         function upgrade() {
@@ -119,10 +148,13 @@
                 score -= cost;
                 level++;
                 cost = Math.floor(cost * 1.7);
+                
                 scoreEl.innerText = score;
                 levelEl.innerText = level;
                 costEl.innerText = cost;
+                
                 if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                saveData(); // Сохраняем уровень и новую цену
             } else {
                 tg.showAlert("Недостаточно очков депрессии!");
             }
