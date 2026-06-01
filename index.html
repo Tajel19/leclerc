@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Leclerc Depression Clicker</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { 
+            text-align: center; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #1a1a1a; 
+            color: white; 
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #leclerc { 
+            width: 220px; 
+            height: 220px;
+            cursor: pointer; 
+            transition: transform 0.05s; 
+            border-radius: 50%; 
+            border: 5px solid #e00000;
+            object-fit: cover;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #leclerc:active { transform: scale(0.95); }
+        .stats { font-size: 22px; margin: 20px; font-weight: bold; }
+        .stats span { color: #e00000; }
+        button { 
+            padding: 15px 30px; 
+            background: #e00000; 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer; 
+            box-shadow: 0 4px 10px rgba(224, 0, 0, 0.3);
+        }
+        button:active { background: #b30000; }
+    </style>
+</head>
+<body>
+    <h1>Leclerc Clicker</h1>
+    
+    <div>
+        <img id="leclerc" src="https://img.vavel.com/charles-leclerc-ferrari-f1-1645107936159.jpg" alt="Charles">
+    </div>
+    
+    <div class="stats">
+        Очки депрессии: <span id="score">0</span><br>
+        Уровень болида: <span id="level">1</span>
+    </div>
+    
+    <div>
+        <button onclick="upgrade()">Улучшить (Цена: <span id="cost">10</span>)</button>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Разворачиваем на весь экран
+
+        let score = 0;
+        let level = 1;
+        let cost = 10;
+
+        const leclerc = document.getElementById('leclerc');
+        const scoreEl = document.getElementById('score');
+        const levelEl = document.getElementById('level');
+        const costEl = document.getElementById('cost');
+
+        leclerc.onclick = () => {
+            score += level;
+            scoreEl.innerText = score;
+            // Легкая вибрация при клике (если поддерживается)
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        };
+
+        function upgrade() {
+            if (score >= cost) {
+                score -= cost;
+                level++;
+                cost = Math.floor(cost * 1.8);
+                scoreEl.innerText = score;
+                levelEl.innerText = level;
+                costEl.innerText = cost;
+                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            } else {
+                tg.showAlert("Недостаточно страданий Ferrari!");
+            }
+        }
+    </script>
+</body>
+</html>
