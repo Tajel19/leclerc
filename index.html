@@ -15,162 +15,364 @@
             padding: 0;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            justify-content: space-between;
             height: 100vh;
             overflow: hidden;
             user-select: none;
             -webkit-user-select: none;
         }
+
+        /* Верхняя панель (Хедер как в Хамстере) */
+        .header-stats {
+            display: flex;
+            justify-content: space-around;
+            background: #1c1c1e;
+            padding: 10px 0;
+            border-bottom: 2px solid #e00000;
+        }
+        .stat-box {
+            font-size: 14px;
+            color: #aaaaaa;
+        }
+        .stat-box span {
+            display: block;
+            font-size: 16px;
+            color: white;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+        .stat-box span.red { color: #e00000; }
+
+        /* Контентные вкладки */
+        .tab-content {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+        .tab-content.active { display: flex; }
+
+        /* Главная вкладка КЛИКЕРА */
         h1 {
-            font-size: 24px;
-            margin-bottom: 5px;
+            font-size: 26px;
+            margin: 5px 0;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        .image-container {
-            margin: 15px 0;
+        .main-score {
+            font-size: 42px;
+            font-weight: 800;
+            margin: 10px 0;
+            color: white;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
         }
         #leclerc { 
-            width: 240px; 
-            height: 240px;
+            width: 250px; 
+            height: 250px;
             cursor: pointer; 
             transition: transform 0.05s ease; 
             border-radius: 50%; 
-            border: 5px solid #e00000;
+            border: 6px solid #e00000;
             object-fit: cover;
             image-rendering: -webkit-optimize-contrast;
             image-rendering: crisp-edges;
-            box-shadow: 0 0 30px rgba(224, 0, 0, 0.6);
+            box-shadow: 0 0 35px rgba(224, 0, 0, 0.5);
             -webkit-tap-highlight-color: transparent;
         }
-        #leclerc:active { 
-            transform: scale(0.92); 
+        #leclerc:active { transform: scale(0.92); }
+
+        /* Вкладка УЛУЧШЕНИЙ (Магазин / Майнинг) */
+        .upgrade-container {
+            width: 90%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
-        .stats { 
-            font-size: 22px; 
-            margin: 15px 0; 
-            font-weight: 600;
+        .upgrade-card {
+            background: #1c1c1e;
+            border-radius: 16px;
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #3a3a3c;
+            text-align: left;
         }
-        .stats span { 
-            color: #e00000; 
-            text-shadow: 0 0 10px rgba(224, 0, 0, 0.3);
-        }
-        button { 
-            padding: 16px 32px; 
-            background: #e00000; 
-            color: white; 
-            border: none; 
-            border-radius: 14px; 
-            font-size: 18px;
+        .upgrade-info h3 { margin: 0 0 4px 0; font-size: 16px; }
+        .upgrade-info p { margin: 0; font-size: 13px; color: #aaaaaa; }
+        .upgrade-btn {
+            background: #e00000;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 10px;
             font-weight: bold;
-            cursor: pointer; 
-            box-shadow: 0 5px 15px rgba(224, 0, 0, 0.4);
-            -webkit-tap-highlight-color: transparent;
+            cursor: pointer;
+            font-size: 14px;
         }
-        button:active { 
-            transform: scale(0.96);
-            background: #b30000;
+        .upgrade-btn:disabled { background: #555; color: #888; cursor: not-allowed; }
+
+        /* Нижнее меню навигации (Таббар) */
+        .navbar {
+            display: flex;
+            background: #1c1c1e;
+            border-top: 1px solid #2c2c2e;
+            padding: 10px 0 20px 0; /* Отступ снизу для мобильных экранов */
         }
+        .nav-item {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #8e8e93;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+        .nav-item.active { color: #e00000; }
+        .nav-icon { font-size: 20px; }
     </style>
 </head>
 <body>
 
-    <h1>Leclerc Clicker</h1>
-    
-    <div class="image-container">
-        <img id="leclerc" src="charles.png" alt="Charles Leclerc">
+    <!-- ВЕРХНЯЯ ПАНЕЛЬ СТАТИСТИКИ -->
+    <div class="header-stats">
+        <div class="stat-box">Прибыль за клик <span class="red" id="pbc-display">+1</span></div>
+        <div class="stat-box">Прибыль в час <span class="red" id="pbh-display">+0</span></div>
     </div>
-    
-    <div class="stats">
-        Очки депрессии: <span id="score">0</span><br>
-        Уровень депрессии: <span id="level">1</span>
+
+    <!-- ВКЛАДКА 1: КЛИКЕР -->
+    <div id="tab-clicker" class="tab-content active">
+        <h1>Leclerc Clicker</h1>
+        <div class="main-score" id="score-display">0</div>
+        <div class="image-container">
+            <img id="leclerc" src="charles.png" alt="Charles Leclerc">
+        </div>
     </div>
-    
-    <div>
-        <button onclick="upgrade()">Увеличить депрессию (Цена: <span id="cost">10</span>)</button>
+
+    <!-- ВКЛАДКА 2: УЛУЧШЕНИЯ (МАЙНИНГ) -->
+    <div id="tab-upgrades" class="tab-content">
+        <h2>Боксы Ferrari</h2>
+        <div class="upgrade-container">
+            <!-- Улучшение клика -->
+            <div class="upgrade-card">
+                <div class="upgrade-info">
+                    <h3>🔥 Сила Клика</h3>
+                    <p>Уровень: <span id="lvl-click">1</span> | Клик: +<span id="val-click">1</span></p>
+                </div>
+                <button class="upgrade-btn" id="btn-click" onclick="buyUpgrade('click')"><span id="cost-click">10</span></button>
+            </div>
+            <!-- Пассивный доход 1 -->
+            <div class="upgrade-card">
+                <div class="upgrade-info">
+                    <h3>🏎️ Новый симулятор</h3>
+                    <p>Уровень: <span id="lvl-sim">0</span> | Доход: +<span id="val-sim">5</span>/ч</p>
+                </div>
+                <button class="upgrade-btn" id="btn-sim" onclick="buyUpgrade('sim')"><span id="cost-sim">50</span></button>
+            </div>
+            <!-- Пассивный доход 2 -->
+            <div class="upgrade-card">
+                <div class="upgrade-info">
+                    <h3>🔧 Тактика гонки</h3>
+                    <p>Уровень: <span id="lvl-strategy">0</span> | Доход: +<span id="val-strategy">40</span>/ч</p>
+                </div>
+                <button class="upgrade-btn" id="btn-strategy" onclick="buyUpgrade('strategy')"><span id="cost-strategy">250</span></button>
+            </div>
+            <!-- Пассивный доход 3 -->
+            <div class="upgrade-card">
+                <div class="upgrade-info">
+                    <h3>🏆 Контракт Хэмилтона</h3>
+                    <p>Уровень: <span id="lvl-contract">0</span> | Доход: +<span id="val-contract">200</span>/ч</p>
+                </div>
+                <button class="upgrade-btn" id="btn-contract" onclick="buyUpgrade('contract')"><span id="cost-contract">1200</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ВКЛАДКА 3: ИНФО -->
+    <div id="tab-info" class="tab-content">
+        <h2>Информация</h2>
+        <p style="color: #aaa; width: 80%; line-height: 1.5;">Нажимайте на Шарля Леклера, копите очки депрессии, прокачивайте пассивный доход в час и стройте самую депрессивную команду в Формуле-1!</p>
+        <p style="margin-top: 20px; font-size: 14px; color: #555;">Версия игры: 2.0</p>
+    </div>
+
+    <!-- НИЖНЕЕ МЕНЮ (НАВИГАЦИЯ) -->
+    <div class="navbar">
+        <button class="nav-item active" onclick="switchTab('clicker', this)">
+            <span class="nav-icon">🎮</span> Клик
+        </button>
+        <button class="nav-item" onclick="switchTab('upgrades', this)">
+            <span class="nav-icon">⛏️</span> Прокачка
+        </button>
+        <button class="nav-item" onclick="switchTab('info', this)">
+            <span class="nav-icon">ℹ️</span> Инфо
+        </button>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
+        // Главные игровые переменные
         let score = 0;
-        let level = 1;
-        let cost = 10;
+        let pbc = 1; // Прибыль за клик
+        let pbh = 0; // Прибыль в час
 
-        const scoreEl = document.getElementById('score');
-        const levelEl = document.getElementById('level');
-        const costEl = document.getElementById('cost');
+        // Объект со всеми улучшениями
+        let upgrades = {
+            click: { lvl: 1, baseCost: 10, costMultiplier: 1.5, currentCost: 10 },
+            sim: { lvl: 0, baseCost: 50, costMultiplier: 1.6, currentCost: 50, income: 5 },
+            strategy: { lvl: 0, baseCost: 250, costMultiplier: 1.7, currentCost: 250, income: 40 },
+            contract: { lvl: 0, baseCost: 1200, costMultiplier: 1.8, currentCost: 1200, income: 200 }
+        };
+
+        // Переключение вкладок меню
+        function switchTab(tabId, button) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            
+            document.getElementById('tab-' + tabId).classList.add('active');
+            button.classList.add('active');
+        }
+
+        // Обновление цифр на экране
+        function updateUI() {
+            document.getElementById('score-display').innerText = Math.floor(score);
+            document.getElementById('pbc-display').innerText = "+" + pbc;
+            document.getElementById('pbh-display').innerText = "+" + pbh;
+
+            // Клик
+            document.getElementById('lvl-click').innerText = upgrades.click.lvl;
+            document.getElementById('val-click').innerText = pbc;
+            document.getElementById('cost-click').innerText = upgrades.click.currentCost;
+
+            // Симулятор
+            document.getElementById('lvl-sim').innerText = upgrades.sim.lvl;
+            document.getElementById('val-sim').innerText = upgrades.sim.lvl * upgrades.sim.income;
+            document.getElementById('cost-sim').innerText = upgrades.sim.currentCost;
+
+            // Тактика
+            document.getElementById('lvl-strategy').innerText = upgrades.strategy.lvl;
+            document.getElementById('val-strategy').innerText = upgrades.strategy.lvl * upgrades.strategy.income;
+            document.getElementById('cost-strategy').innerText = upgrades.strategy.currentCost;
+
+            // Контракт
+            document.getElementById('lvl-contract').innerText = upgrades.contract.lvl;
+            document.getElementById('val-contract').innerText = upgrades.contract.lvl * upgrades.contract.income;
+            document.getElementById('cost-contract').innerText = upgrades.contract.currentCost;
+
+            checkButtons();
+        }
+
+        // Блокировка кнопок, если не хватает денег
+        function checkButtons() {
+            for (let key in upgrades) {
+                let btn = document.getElementById('btn-' + key);
+                if (btn) {
+                    btn.disabled = score < upgrades[key].currentCost;
+                }
+            }
+        }
+
+        // Клик по Леклеру
+        document.getElementById('leclerc').onclick = () => {
+            score += pbc;
+            document.getElementById('score-display').innerText = Math.floor(score);
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            checkButtons();
+        };
+
+        // Логика покупки улучшений
+        function buyUpgrade(key) {
+            let item = upgrades[key];
+            if (score >= item.currentCost) {
+                score -= item.currentCost;
+                item.lvl++;
+                
+                // Пересчитываем параметры
+                item.currentCost = Math.floor(item.baseCost * Math.pow(item.costMultiplier, item.lvl));
+                
+                if (key === 'click') {
+                    pbc = item.lvl;
+                } else {
+                    recalculatePassiveIncome();
+                }
+
+                updateUI();
+                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                saveData();
+            }
+        }
+
+        function recalculatePassiveIncome() {
+            pbh = (upgrades.sim.lvl * upgrades.sim.income) + 
+                  (upgrades.strategy.lvl * upgrades.strategy.income) + 
+                  (upgrades.contract.lvl * upgrades.contract.income);
+        }
+
+        // Пассивный доход (начисляется каждую секунду частями)
+        setInterval(() => {
+            if (pbh > 0) {
+                score += pbh / 3600; // Делим доход в час на 3600 секунд
+                document.getElementById('score-display').innerText = Math.floor(score);
+                checkButtons();
+            }
+        }, 1000);
 
         // Функция сохранения данных
         function saveData() {
-            localStorage.setItem('leclerc_score', score.toString());
-            localStorage.setItem('leclerc_level', level.toString());
-            localStorage.setItem('leclerc_cost', cost.toString());
+            let state = { score, upgrades, pbc, pbh };
+            localStorage.setItem('leclerc_state', JSON.stringify(state));
 
             if (tg.CloudStorage) {
-                tg.CloudStorage.setItem('score', score.toString());
-                tg.CloudStorage.setItem('level', level.toString());
-                tg.CloudStorage.setItem('cost', cost.toString());
+                tg.CloudStorage.setItem('game_state', JSON.stringify(state));
             }
         }
 
         // Функция загрузки данных
         function loadData() {
-            let localScore = localStorage.getItem('leclerc_score');
-            let localLevel = localStorage.getItem('leclerc_level');
-            let localCost = localStorage.getItem('leclerc_cost');
-
-            if (localScore && localLevel && localCost) {
-                score = parseInt(localScore);
-                level = parseInt(localLevel);
-                cost = parseInt(localCost);
-                updateUI();
+            let localData = localStorage.getItem('leclerc_state');
+            if (localData) {
+                restoreState(JSON.parse(localData));
             } else if (tg.CloudStorage) {
-                tg.CloudStorage.getItems(['score', 'level', 'cost'], function(error, values) {
-                    if (!error && values.score) {
-                        score = parseInt(values.score);
-                        level = parseInt(values.level);
-                        cost = parseInt(values.cost);
-                        updateUI();
+                tg.CloudStorage.getItems(['game_state'], function(error, values) {
+                    if (!error && values.game_state) {
+                        restoreState(JSON.parse(values.game_state));
                     }
                 });
             }
         }
 
-        function updateUI() {
-            scoreEl.innerText = score;
-            levelEl.innerText = level;
-            costEl.innerText = cost;
-        }
-
-        // Загружаем данные при старте
-        loadData();
-
-        // Клик по Леклеру
-        document.getElementById('leclerc').onclick = () => {
-            score += level;
-            scoreEl.innerText = score;
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-        };
-
-        // Покупка апгрейда
-        function upgrade() {
-            if (score >= cost) {
-                score -= cost;
-                level++;
-                cost = Math.floor(cost * 1.7);
+        function restoreState(data) {
+            if (data) {
+                score = data.score || 0;
+                pbc = data.pbc || 1;
+                pbh = data.pbh || 0;
+                if (data.upgrades) {
+                    // Восстанавливаем старые уровни и цены апгрейдов, если они существуют
+                    for (let key in data.upgrades) {
+                        if (upgrades[key]) {
+                            upgrades[key].lvl = data.upgrades[key].lvl;
+                            upgrades[key].currentCost = data.upgrades[key].currentCost;
+                        }
+                    }
+                }
                 updateUI();
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                saveData(); // Мгновенное сохранение при покупке
-            } else {
-                tg.showAlert("Недостаточно очков депрессии!");
             }
         }
 
-        // Автосохранение каждые 3 секунды, чтобы не перегружать память частыми кликами
-        setInterval(saveData, 3000);
+        loadData();
+        setInterval(saveData, 3000); // Автосохранение раз в 3 секунды
     </script>
 </body>
 </html>
