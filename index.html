@@ -22,7 +22,7 @@
             -webkit-user-select: none;
         }
 
-        /* Верхняя панель (Хедер как в Хамстере) */
+        /* Верхняя панель */
         .header-stats {
             display: flex;
             justify-content: space-around;
@@ -85,7 +85,7 @@
         }
         #leclerc:active { transform: scale(0.92); }
 
-        /* Вкладка УЛУЧШЕНИЙ (Магазин / Майнинг) */
+        /* Вкладка УЛУЧШЕНИЙ */
         .upgrade-container {
             width: 90%;
             max-width: 400px;
@@ -117,12 +117,12 @@
         }
         .upgrade-btn:disabled { background: #555; color: #888; cursor: not-allowed; }
 
-        /* Нижнее меню навигации (Таббар) */
+        /* Нижнее меню навигации */
         .navbar {
             display: flex;
             background: #1c1c1e;
             border-top: 1px solid #2c2c2e;
-            padding: 10px 0 20px 0; /* Отступ снизу для мобильных экранов */
+            padding: 10px 0 20px 0;
         }
         .nav-item {
             flex: 1;
@@ -164,34 +164,36 @@
     <div id="tab-upgrades" class="tab-content">
         <h2>Боксы Ferrari</h2>
         <div class="upgrade-container">
-            <!-- Улучшение клика -->
+            <!-- Сила депрессии (бывшая Сила Клика) -->
             <div class="upgrade-card">
                 <div class="upgrade-info">
-                    <h3>🔥 Сила Клика</h3>
+                    <h3>💔 Сила депрессии</h3>
                     <p>Уровень: <span id="lvl-click">1</span> | Клик: +<span id="val-click">1</span></p>
                 </div>
                 <button class="upgrade-btn" id="btn-click" onclick="buyUpgrade('click')"><span id="cost-click">10</span></button>
             </div>
-            <!-- Пассивный доход 1 -->
+            <!-- Избиение стратегов (бывший Симулятор) -->
             <div class="upgrade-card">
                 <div class="upgrade-info">
-                    <h3>🏎️ Новый симулятор</h3>
+                    <h3>🥊 Избиение стратегов</h3>
                     <p>Уровень: <span id="lvl-sim">0</span> | Доход: +<span id="val-sim">5</span>/ч</p>
                 </div>
                 <button class="upgrade-btn" id="btn-sim" onclick="buyUpgrade('sim')"><span id="cost-sim">50</span></button>
             </div>
-            <!-- Пассивный доход 2 -->
+            <!-- Стратеги-клоуны -->
             <div class="upgrade-card">
                 <div class="upgrade-info">
-                    <h3>🔧 Тактика гонки</h3>
+                    <h3>🤡 Стратеги-клоуны</h3>
+                    <p style="font-size: 11px; color: #ff4545; margin-bottom: 2px;">Говорят бесполезную тактику</p>
                     <p>Уровень: <span id="lvl-strategy">0</span> | Доход: +<span id="val-strategy">40</span>/ч</p>
                 </div>
                 <button class="upgrade-btn" id="btn-strategy" onclick="buyUpgrade('strategy')"><span id="cost-strategy">250</span></button>
             </div>
-            <!-- Пассивный доход 3 -->
+            <!-- Еще один год страданий (бывший Контракт) -->
             <div class="upgrade-card">
                 <div class="upgrade-info">
-                    <h3>🏆 Контракт Хэмилтона</h3>
+                    <h3>📝 Еще один год страданий</h3>
+                    <p style="font-size: 11px; color: #aaaaaa; margin-bottom: 2px;">Продление контракта</p>
                     <p>Уровень: <span id="lvl-contract">0</span> | Доход: +<span id="val-contract">200</span>/ч</p>
                 </div>
                 <button class="upgrade-btn" id="btn-contract" onclick="buyUpgrade('contract')"><span id="cost-contract">1200</span></button>
@@ -202,11 +204,11 @@
     <!-- ВКЛАДКА 3: ИНФО -->
     <div id="tab-info" class="tab-content">
         <h2>Информация</h2>
-        <p style="color: #aaa; width: 80%; line-height: 1.5;">Нажимайте на Шарля Леклера, копите очки депрессии, прокачивайте пассивный доход в час и стройте самую депрессивную команду в Формуле-1!</p>
-        <p style="margin-top: 20px; font-size: 14px; color: #555;">Версия игры: 2.0</p>
+        <p style="color: #aaa; width: 80%; line-height: 1.5;">Нажимайте на Шарля Леклера, копите очки депрессии, прокачивайте пассивный доход в час и выживайте в Ferrari как можете!</p>
+        <p style="margin-top: 20px; font-size: 14px; color: #555;">Версия игры: 2.1</p>
     </div>
 
-    <!-- НИЖНЕЕ МЕНЮ (НАВИГАЦИЯ) -->
+    <!-- НИЖНЕЕ МЕНЮ -->
     <div class="navbar">
         <button class="nav-item active" onclick="switchTab('clicker', this)">
             <span class="nav-icon">🎮</span> Клик
@@ -223,12 +225,10 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Главные игровые переменные
         let score = 0;
-        let pbc = 1; // Прибыль за клик
-        let pbh = 0; // Прибыль в час
+        let pbc = 1;
+        let pbh = 0;
 
-        // Объект со всеми улучшениями
         let upgrades = {
             click: { lvl: 1, baseCost: 10, costMultiplier: 1.5, currentCost: 10 },
             sim: { lvl: 0, baseCost: 50, costMultiplier: 1.6, currentCost: 50, income: 5 },
@@ -236,7 +236,6 @@
             contract: { lvl: 0, baseCost: 1200, costMultiplier: 1.8, currentCost: 1200, income: 200 }
         };
 
-        // Переключение вкладок меню
         function switchTab(tabId, button) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
@@ -245,28 +244,23 @@
             button.classList.add('active');
         }
 
-        // Обновление цифр на экране
         function updateUI() {
             document.getElementById('score-display').innerText = Math.floor(score);
             document.getElementById('pbc-display').innerText = "+" + pbc;
             document.getElementById('pbh-display').innerText = "+" + pbh;
 
-            // Клик
             document.getElementById('lvl-click').innerText = upgrades.click.lvl;
             document.getElementById('val-click').innerText = pbc;
             document.getElementById('cost-click').innerText = upgrades.click.currentCost;
 
-            // Симулятор
             document.getElementById('lvl-sim').innerText = upgrades.sim.lvl;
             document.getElementById('val-sim').innerText = upgrades.sim.lvl * upgrades.sim.income;
             document.getElementById('cost-sim').innerText = upgrades.sim.currentCost;
 
-            // Тактика
             document.getElementById('lvl-strategy').innerText = upgrades.strategy.lvl;
             document.getElementById('val-strategy').innerText = upgrades.strategy.lvl * upgrades.strategy.income;
             document.getElementById('cost-strategy').innerText = upgrades.strategy.currentCost;
 
-            // Контракт
             document.getElementById('lvl-contract').innerText = upgrades.contract.lvl;
             document.getElementById('val-contract').innerText = upgrades.contract.lvl * upgrades.contract.income;
             document.getElementById('cost-contract').innerText = upgrades.contract.currentCost;
@@ -274,7 +268,6 @@
             checkButtons();
         }
 
-        // Блокировка кнопок, если не хватает денег
         function checkButtons() {
             for (let key in upgrades) {
                 let btn = document.getElementById('btn-' + key);
@@ -284,7 +277,6 @@
             }
         }
 
-        // Клик по Леклеру
         document.getElementById('leclerc').onclick = () => {
             score += pbc;
             document.getElementById('score-display').innerText = Math.floor(score);
@@ -292,14 +284,12 @@
             checkButtons();
         };
 
-        // Логика покупки улучшений
         function buyUpgrade(key) {
             let item = upgrades[key];
             if (score >= item.currentCost) {
                 score -= item.currentCost;
                 item.lvl++;
                 
-                // Пересчитываем параметры
                 item.currentCost = Math.floor(item.baseCost * Math.pow(item.costMultiplier, item.lvl));
                 
                 if (key === 'click') {
@@ -320,16 +310,14 @@
                   (upgrades.contract.lvl * upgrades.contract.income);
         }
 
-        // Пассивный доход (начисляется каждую секунду частями)
         setInterval(() => {
             if (pbh > 0) {
-                score += pbh / 3600; // Делим доход в час на 3600 секунд
+                score += pbh / 3600;
                 document.getElementById('score-display').innerText = Math.floor(score);
                 checkButtons();
             }
         }, 1000);
 
-        // Функция сохранения данных
         function saveData() {
             let state = { score, upgrades, pbc, pbh };
             localStorage.setItem('leclerc_state', JSON.stringify(state));
@@ -339,7 +327,6 @@
             }
         }
 
-        // Функция загрузки данных
         function loadData() {
             let localData = localStorage.getItem('leclerc_state');
             if (localData) {
@@ -359,7 +346,6 @@
                 pbc = data.pbc || 1;
                 pbh = data.pbh || 0;
                 if (data.upgrades) {
-                    // Восстанавливаем старые уровни и цены апгрейдов, если они существуют
                     for (let key in data.upgrades) {
                         if (upgrades[key]) {
                             upgrades[key].lvl = data.upgrades[key].lvl;
@@ -372,7 +358,7 @@
         }
 
         loadData();
-        setInterval(saveData, 3000); // Автосохранение раз в 3 секунды
+        setInterval(saveData, 3000);
     </script>
 </body>
 </html>
