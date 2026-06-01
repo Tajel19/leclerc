@@ -39,10 +39,10 @@
             border-radius: 50%; 
             border: 5px solid #e00000;
             
-            /* УЛУЧШЕНИЕ КАЧЕСТВА: */
+            /* Четкое сглаживание изображения */
             object-fit: cover;
-            image-rendering: -webkit-optimize-contrast; /* Для высокой четкости на iOS/Mac */
-            image-rendering: crisp-edges;               /* Для четких краев */
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
             
             box-shadow: 0 0 30px rgba(224, 0, 0, 0.6);
             -webkit-tap-highlight-color: transparent;
@@ -82,6 +82,7 @@
     <h1>Leclerc Clicker</h1>
     
     <div class="image-container">
+        <!-- Изменили имя файла на charles.png -->
         <img id="leclerc" src="charles.png" alt="Charles Leclerc">
     </div>
     
