@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Leclerc Depression Clicker</title>
-    <!-- Подключаем официальный скрипт Telegram Mini Apps -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { 
@@ -24,55 +23,50 @@
             -webkit-user-select: none;
         }
         h1 {
-            font-size: 26px;
-            margin-bottom: 10px;
+            font-size: 24px;
+            margin-bottom: 5px;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
         .image-container {
-            margin: 20px 0;
-            position: relative;
+            margin: 15px 0;
         }
         #leclerc { 
-            width: 230px; 
-            height: 230px;
+            width: 220px; 
+            height: 220px;
             cursor: pointer; 
             transition: transform 0.05s ease; 
             border-radius: 50%; 
-            border: 6px solid #e00000;
+            border: 5px solid #e00000;
             object-fit: cover;
-            box-shadow: 0 0 20px rgba(224, 0, 0, 0.4);
+            box-shadow: 0 0 25px rgba(224, 0, 0, 0.5);
             -webkit-tap-highlight-color: transparent;
         }
         #leclerc:active { 
-            transform: scale(0.92); 
+            transform: scale(0.94); 
         }
         .stats { 
             font-size: 20px; 
-            margin: 20px 0; 
+            margin: 15px 0; 
             font-weight: 600;
-            line-height: 1.6;
         }
         .stats span { 
             color: #e00000; 
-            font-weight: bold;
         }
         button { 
-            padding: 16px 32px; 
+            padding: 15px 30px; 
             background: #e00000; 
             color: white; 
             border: none; 
-            border-radius: 14px; 
-            font-size: 18px;
+            border-radius: 12px; 
+            font-size: 17px;
             font-weight: bold;
             cursor: pointer; 
-            transition: background 0.2s, transform 0.1s;
-            box-shadow: 0 6px 15px rgba(224, 0, 0, 0.4);
+            box-shadow: 0 4px 15px rgba(224, 0, 0, 0.3);
             -webkit-tap-highlight-color: transparent;
         }
         button:active { 
+            transform: scale(0.97);
             background: #b30000;
-            transform: scale(0.96);
         }
     </style>
 </head>
@@ -80,26 +74,22 @@
 
     <h1>Leclerc Clicker</h1>
     
-    <!-- Контейнер с новым рабочим фото Шарля Леклера -->
     <div class="image-container">
-        <img id="leclerc" src="https://images.unsplash.com/photo-1658312027960-9bc81f33f0e1?q=80&w=600&auto=format&fit=crop" alt="Charles Leclerc">
+        <img id="leclerc" src="leclerc.png" alt="Charles Leclerc">
     </div>
     
-    <!-- Блок со статистикой кликов -->
     <div class="stats">
         Очки депрессии: <span id="score">0</span><br>
         Уровень болида: <span id="level">1</span>
     </div>
     
-    <!-- Кнопка прокачки -->
     <div>
         <button onclick="upgrade()">Улучшить болид (Цена: <span id="cost">10</span>)</button>
     </div>
 
     <script>
-        // Инициализация Telegram WebApp
         let tg = window.Telegram.WebApp;
-        tg.expand(); // Автоматически разворачиваем приложение на максимум
+        tg.expand();
 
         let score = 0;
         let level = 1;
@@ -110,35 +100,23 @@
         const levelEl = document.getElementById('level');
         const costEl = document.getElementById('cost');
 
-        // Логика тапа по фото
         leclerc.onclick = () => {
             score += level;
             scoreEl.innerText = score;
-            
-            // Легкая вибрация телефона при клике (работает на смартфонах в Telegram)
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
-            }
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
         };
 
-        // Логика покупки улучшения
         function upgrade() {
             if (score >= cost) {
                 score -= cost;
                 level++;
-                cost = Math.floor(cost * 1.8); // Увеличение стоимости следующего уровня
-                
+                cost = Math.floor(cost * 1.7);
                 scoreEl.innerText = score;
                 levelEl.innerText = level;
                 costEl.innerText = cost;
-                
-                // Вибрация успеха при покупке
-                if (tg.HapticFeedback) {
-                    tg.HapticFeedback.notificationOccurred('success');
-                }
+                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             } else {
-                // Красивое всплывающее окно Telegram, если не хватает очков
-                tg.showAlert("Недостаточно страданий Ferrari! Продолжай тапать.");
+                tg.showAlert("Недостаточно очков депрессии!");
             }
         }
     </script>
