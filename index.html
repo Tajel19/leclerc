@@ -164,8 +164,9 @@
 </head>
 <body>
 
-    <!-- Звуковой элемент -->
+    <!-- Звуковые элементы -->
     <audio id="stupid-sound" src="stupid.mp3" preload="auto"></audio>
+    <audio id="click-sound" src="click.mp3" preload="auto"></audio>
 
     <!-- ВЕРХНЯЯ ПАНЕЛЬ СТАТИСТИКИ -->
     <div class="header-stats">
@@ -245,7 +246,7 @@
     <div id="tab-info" class="tab-content">
         <h2>Информация</h2>
         <p style="color: #aaa; width: 80%; line-height: 1.5;">Нажимайте на Шарля Леклера, копите очки депрессии, прокачивайте пассивный доход в час. Доход капает даже когда вы не в сети!</p>
-        <p style="margin-top: 20px; font-size: 14px; color: #555;">Версия игры: 4.0 (Offline Update)</p>
+        <p style="margin-top: 20px; font-size: 14px; color: #555;">Версия игры: 4.6 (Balance Update)</p>
     </div>
 
     <!-- НИЖНЕЕ МЕНЮ -->
@@ -273,11 +274,12 @@
 
         const rebirthRequirements = [25, 100, 250, 500, 1000];
 
+        // Коэффициент costMultiplier изменен везде строго на 1.25 (+25% к цене за уровень)
         let upgrades = {
-            click: { lvl: 1, baseCost: 10, costMultiplier: 1.5, currentCost: 10 },
-            sim: { lvl: 0, baseCost: 50, costMultiplier: 1.6, currentCost: 50, income: 5 },
-            strategy: { lvl: 0, baseCost: 250, costMultiplier: 1.7, currentCost: 250, income: 40 },
-            contract: { lvl: 0, baseCost: 1200, costMultiplier: 1.8, currentCost: 1200, income: 200 }
+            click: { lvl: 1, baseCost: 10, costMultiplier: 1.25, currentCost: 10 },
+            sim: { lvl: 0, baseCost: 50, costMultiplier: 1.25, currentCost: 50, income: 5 },
+            strategy: { lvl: 0, baseCost: 250, costMultiplier: 1.25, currentCost: 250, income: 40 },
+            contract: { lvl: 0, baseCost: 1200, costMultiplier: 1.25, currentCost: 1200, income: 200 }
         };
 
         function switchTab(tabId, button) {
@@ -346,16 +348,22 @@
             rebirthBtn.disabled = upgrades.click.lvl < getRequiredLevel();
         }
 
-        // Функция воспроизведения «I am stupid»
         function playStupidSound() {
             const sound = document.getElementById('stupid-sound');
-            sound.currentTime = 0; // Сброс на начало, чтобы можно было кликать быстро подряд
-            sound.play().catch(e => console.log("Браузер заблокировал звук до первого клика по экрану"));
+            sound.currentTime = 0; 
+            sound.play().catch(e => console.log("Звук заблокирован"));
+        }
+
+        function playClickSound() {
+            const sound = document.getElementById('click-sound');
+            sound.currentTime = 0; 
+            sound.play().catch(e => console.log("Звук заблокирован"));
         }
 
         document.getElementById('leclerc').onclick = () => {
             score += pbc * multiplier;
             document.getElementById('score-display').innerText = Math.floor(score);
+            playClickSound(); 
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
             checkButtons();
         };
@@ -366,6 +374,7 @@
                 score -= item.currentCost;
                 item.lvl++;
                 
+                // Рассчитываем новую цену с шагом х1.25 вместо х1.5+
                 item.currentCost = Math.floor(item.baseCost * Math.pow(item.costMultiplier, item.lvl));
                 
                 if (key === 'click') {
@@ -374,7 +383,7 @@
                     recalculatePassiveIncome();
                 }
 
-                playStupidSound(); // Проигрываем звук при успешном апгрейде!
+                playStupidSound(); 
                 updateUI();
                 if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                 saveData();
@@ -395,10 +404,11 @@
                 pbc = 1;
                 pbh = 0;
                 
-                upgrades.click = { lvl: 1, baseCost: 10, costMultiplier: 1.5, currentCost: 10 };
-                upgrades.sim = { lvl: 0, baseCost: 50, costMultiplier: 1.6, currentCost: 50, income: 5 };
-                upgrades.strategy = { lvl: 0, baseCost: 250, costMultiplier: 1.7, currentCost: 250, income: 40 };
-                upgrades.contract = { lvl: 0, baseCost: 1200, costMultiplier: 1.8, currentCost: 1200, income: 200 };
+                // При реберхе структура цен пересоздается также с шагом 1.25
+                upgrades.click = { lvl: 1, baseCost: 10, costMultiplier: 1.25, currentCost: 10 };
+                upgrades.sim = { lvl: 0, baseCost: 50, costMultiplier: 1.25, currentCost: 50, income: 5 };
+                upgrades.strategy = { lvl: 0, baseCost: 250, costMultiplier: 1.25, currentCost: 250, income: 40 };
+                upgrades.contract = { lvl: 0, baseCost: 1200, costMultiplier: 1.25, currentCost: 1200, income: 200 };
 
                 playStupidSound();
                 tg.showAlert("Вы успешно переродились! Множитель увеличен, лицо Шарля стало еще грустнее.");
@@ -424,20 +434,20 @@
                 pbc, 
                 pbh, 
                 rebirths,
-                lastTime: Date.now() // Запоминаем точное время выхода/сохранения
+                lastTime: Date.now()
             };
-            localStorage.setItem('leclerc_state_v5', JSON.stringify(state));
-            if (tg.CloudStorage) tg.CloudStorage.setItem('game_state_v5', JSON.stringify(state));
+            localStorage.setItem('leclerc_state_v7', JSON.stringify(state));
+            if (tg.CloudStorage) tg.CloudStorage.setItem('game_state_v7', JSON.stringify(state));
         }
 
         function loadData() {
-            let localData = localStorage.getItem('leclerc_state_v5');
+            let localData = localStorage.getItem('leclerc_state_v7');
             if (localData) {
                 restoreState(JSON.parse(localData));
             } else if (tg.CloudStorage) {
-                tg.CloudStorage.getItems(['game_state_v5'], function(error, values) {
-                    if (!error && values.game_state_v5) {
-                        restoreState(JSON.parse(values.game_state_v5));
+                tg.CloudStorage.getItems(['game_state_v7'], function(error, values) {
+                    if (!error && values.game_state_v7) {
+                        restoreState(JSON.parse(values.game_state_v7));
                     }
                 });
             }
@@ -453,6 +463,8 @@
                     for (let key in data.upgrades) {
                         if (upgrades[key]) {
                             upgrades[key].lvl = data.upgrades[key].lvl;
+                            // На всякий случай обновляем множитель в старых сохранениях
+                            upgrades[key].costMultiplier = 1.25;
                             upgrades[key].currentCost = data.upgrades[key].currentCost;
                         }
                     }
@@ -460,12 +472,11 @@
                 
                 updateUI();
 
-                // РАСЧЕТ ОФЛАЙН-ДОХОДА
                 if (data.lastTime && pbh > 0) {
                     let currentTime = Date.now();
                     let secondsOffline = Math.floor((currentTime - data.lastTime) / 1000);
                     
-                    if (secondsOffline > 10) { // Если игрока не было больше 10 секунд
+                    if (secondsOffline > 10) { 
                         let currentMult = 1 + (rebirths * 0.5);
                         let offlineEarnings = Math.floor(((pbh * currentMult) / 3600) * secondsOffline);
                         
@@ -473,7 +484,6 @@
                             score += offlineEarnings;
                             document.getElementById('score-display').innerText = Math.floor(score);
                             
-                            // Красивое всплывающее окошко в Telegram
                             setTimeout(() => {
                                 tg.showAlert(`Пока тебя не было, стратеги Ferrari накосячили ещё больше!\n\nТебе начислено пассивного дохода: +${offlineEarnings} очков депрессии!`);
                             }, 500);
