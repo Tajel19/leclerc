@@ -235,7 +235,7 @@
                 <div class="upgrade-info">
                     <h3>📝 Еще один год страданий</h3>
                     <p style="font-size: 11px; color: #aaaaaa; margin-bottom: 2px;">Продление контракта</p>
-                    <p>Уровень: <span id="lvl-contract">0</span> | Доход: +<span id="val-contract">200</span>/ч</p>
+                    <p>Уgrowth: <span id="lvl-contract">0</span> | Доход: +<span id="val-contract">200</span>/ч</p>
                 </div>
                 <button class="upgrade-btn" id="btn-contract" onclick="buyUpgrade('contract')"><span id="cost-contract">1200</span></button>
             </div>
@@ -246,7 +246,7 @@
     <div id="tab-info" class="tab-content">
         <h2>Информация</h2>
         <p style="color: #aaa; width: 80%; line-height: 1.5;">Нажимайте на Шарля Леклера, копите очки депрессии, прокачивайте пассивный доход в час. Доход капает даже когда вы не в сети!</p>
-        <p style="margin-top: 20px; font-size: 14px; color: #555;">Версия игры: 4.6 (Balance Update)</p>
+        <p style="margin-top: 20px; font-size: 14px; color: #555;">Версия игры: 4.7 (Balance Fix)</p>
     </div>
 
     <!-- НИЖНЕЕ МЕНЮ -->
@@ -274,12 +274,12 @@
 
         const rebirthRequirements = [25, 100, 250, 500, 1000];
 
-        // Коэффициент costMultiplier изменен везде строго на 1.25 (+25% к цене за уровень)
+        // Коэффициент costMultiplier изменен на 1.4 (+40% к стоимости за уровень)
         let upgrades = {
-            click: { lvl: 1, baseCost: 10, costMultiplier: 1.25, currentCost: 10 },
-            sim: { lvl: 0, baseCost: 50, costMultiplier: 1.25, currentCost: 50, income: 5 },
-            strategy: { lvl: 0, baseCost: 250, costMultiplier: 1.25, currentCost: 250, income: 40 },
-            contract: { lvl: 0, baseCost: 1200, costMultiplier: 1.25, currentCost: 1200, income: 200 }
+            click: { lvl: 1, baseCost: 10, costMultiplier: 1.4, currentCost: 10 },
+            sim: { lvl: 0, baseCost: 50, costMultiplier: 1.4, currentCost: 50, income: 5 },
+            strategy: { lvl: 0, baseCost: 250, costMultiplier: 1.4, currentCost: 250, income: 40 },
+            contract: { lvl: 0, baseCost: 1200, costMultiplier: 1.4, currentCost: 1200, income: 200 }
         };
 
         function switchTab(tabId, button) {
@@ -374,7 +374,7 @@
                 score -= item.currentCost;
                 item.lvl++;
                 
-                // Рассчитываем новую цену с шагом х1.25 вместо х1.5+
+                // Расчет стоимости с коэффициентом 1.4
                 item.currentCost = Math.floor(item.baseCost * Math.pow(item.costMultiplier, item.lvl));
                 
                 if (key === 'click') {
@@ -404,11 +404,11 @@
                 pbc = 1;
                 pbh = 0;
                 
-                // При реберхе структура цен пересоздается также с шагом 1.25
-                upgrades.click = { lvl: 1, baseCost: 10, costMultiplier: 1.25, currentCost: 10 };
-                upgrades.sim = { lvl: 0, baseCost: 50, costMultiplier: 1.25, currentCost: 50, income: 5 };
-                upgrades.strategy = { lvl: 0, baseCost: 250, costMultiplier: 1.25, currentCost: 250, income: 40 };
-                upgrades.contract = { lvl: 0, baseCost: 1200, costMultiplier: 1.25, currentCost: 1200, income: 200 };
+                // Сброс структуры улучшений на новые 40%
+                upgrades.click = { lvl: 1, baseCost: 10, costMultiplier: 1.4, currentCost: 10 };
+                upgrades.sim = { lvl: 0, baseCost: 50, costMultiplier: 1.4, currentCost: 50, income: 5 };
+                upgrades.strategy = { lvl: 0, baseCost: 250, costMultiplier: 1.4, currentCost: 250, income: 40 };
+                upgrades.contract = { lvl: 0, baseCost: 1200, costMultiplier: 1.4, currentCost: 1200, income: 200 };
 
                 playStupidSound();
                 tg.showAlert("Вы успешно переродились! Множитель увеличен, лицо Шарля стало еще грустнее.");
@@ -436,18 +436,18 @@
                 rebirths,
                 lastTime: Date.now()
             };
-            localStorage.setItem('leclerc_state_v7', JSON.stringify(state));
-            if (tg.CloudStorage) tg.CloudStorage.setItem('game_state_v7', JSON.stringify(state));
+            localStorage.setItem('leclerc_state_v8', JSON.stringify(state));
+            if (tg.CloudStorage) tg.CloudStorage.setItem('game_state_v8', JSON.stringify(state));
         }
 
         function loadData() {
-            let localData = localStorage.getItem('leclerc_state_v7');
+            let localData = localStorage.getItem('leclerc_state_v8');
             if (localData) {
                 restoreState(JSON.parse(localData));
             } else if (tg.CloudStorage) {
-                tg.CloudStorage.getItems(['game_state_v7'], function(error, values) {
-                    if (!error && values.game_state_v7) {
-                        restoreState(JSON.parse(values.game_state_v7));
+                tg.CloudStorage.getItems(['game_state_v8'], function(error, values) {
+                    if (!error && values.game_state_v8) {
+                        restoreState(JSON.parse(values.game_state_v8));
                     }
                 });
             }
@@ -463,8 +463,7 @@
                     for (let key in data.upgrades) {
                         if (upgrades[key]) {
                             upgrades[key].lvl = data.upgrades[key].lvl;
-                            // На всякий случай обновляем множитель в старых сохранениях
-                            upgrades[key].costMultiplier = 1.25;
+                            upgrades[key].costMultiplier = 1.4; // Обновляем под новые реалии
                             upgrades[key].currentCost = data.upgrades[key].currentCost;
                         }
                     }
