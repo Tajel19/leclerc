@@ -31,12 +31,13 @@
             border-bottom: 2px solid #e00000;
         }
         .stat-box {
-            font-size: 14px;
+            font-size: 11px;
             color: #aaaaaa;
+            text-transform: uppercase;
         }
         .stat-box span {
             display: block;
-            font-size: 16px;
+            font-size: 15px;
             color: white;
             font-weight: bold;
             margin-top: 2px;
@@ -68,7 +69,7 @@
             font-weight: 800;
             margin: 10px 0;
             color: white;
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            text-shadow: 0 0 15px rgba(224, 0, 0, 0.3);
         }
         #leclerc { 
             width: 250px; 
@@ -79,11 +80,18 @@
             border: 6px solid #e00000;
             object-fit: cover;
             image-rendering: -webkit-optimize-contrast;
-            image-rendering: crisp-edges;
             box-shadow: 0 0 35px rgba(224, 0, 0, 0.5);
             -webkit-tap-highlight-color: transparent;
         }
         #leclerc:active { transform: scale(0.92); }
+        
+        .rebirth-badge {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #ffb300;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 179, 0, 0.4);
+        }
 
         /* Вкладка УЛУЧШЕНИЙ */
         .upgrade-container {
@@ -103,7 +111,7 @@
             border: 1px solid #3a3a3c;
             text-align: left;
         }
-        .upgrade-info h3 { margin: 0 0 4px 0; font-size: 16px; }
+        .upgrade-info h3 { margin: 0 0 4px 0; font-size: 15px; }
         .upgrade-info p { margin: 0; font-size: 13px; color: #aaaaaa; }
         .upgrade-btn {
             background: #e00000;
@@ -114,10 +122,23 @@
             font-weight: bold;
             cursor: pointer;
             font-size: 14px;
+            min-width: 70px;
+            text-align: center;
         }
         .upgrade-btn:disabled { background: #555; color: #888; cursor: not-allowed; }
 
-        /* Нижнее меню навигации */
+        /* Кнопка Перерождения */
+        .rebirth-card {
+            background: rgba(255, 179, 0, 0.1);
+            border: 1px solid #ffb300;
+        }
+        .rebirth-btn {
+            background: #ffb300;
+            color: black;
+        }
+        .rebirth-btn:disabled { background: #555; color: #888; }
+
+        /* Нижнее меню */
         .navbar {
             display: flex;
             background: #1c1c1e;
@@ -136,8 +157,6 @@
             flex-direction: column;
             align-items: center;
             gap: 4px;
-            box-shadow: none !important;
-            transform: none !important;
         }
         .nav-item.active { color: #e00000; }
         .nav-icon { font-size: 20px; }
@@ -147,8 +166,9 @@
 
     <!-- ВЕРХНЯЯ ПАНЕЛЬ СТАТИСТИКИ -->
     <div class="header-stats">
-        <div class="stat-box">Прибыль за клик <span class="red" id="pbc-display">+1</span></div>
-        <div class="stat-box">Прибыль в час <span class="red" id="pbh-display">+0</span></div>
+        <div class="stat-box">Клик <span class="red" id="pbc-display">+1</span></div>
+        <div class="stat-box">В час <span class="red" id="pbh-display">+0</span></div>
+        <div class="stat-box">Множитель <span style="color: #ffb300;" id="mult-display">1.0x</span></div>
     </div>
 
     <!-- ВКЛАДКА 1: КЛИКЕР -->
@@ -158,13 +178,27 @@
         <div class="image-container">
             <img id="leclerc" src="charles.png" alt="Charles Leclerc">
         </div>
+        <div class="rebirth-badge" id="rebirth-status" style="display: none;">
+            Перерождений: <span id="rebirth-count-main">0</span>
+        </div>
     </div>
 
-    <!-- ВКЛАДКА 2: УЛУЧШЕНИЯ (МАЙНИНГ) -->
+    <!-- ВКЛАДКА 2: УЛУЧШЕНИЯ -->
     <div id="tab-upgrades" class="tab-content">
         <h2>Боксы Ferrari</h2>
         <div class="upgrade-container">
-            <!-- Сила депрессии (бывшая Сила Клика) -->
+            
+            <!-- ОСОБАЯ КНОПКА: ПЕРЕРОЖДЕНИЕ -->
+            <div class="upgrade-card rebirth-card">
+                <div class="upgrade-info">
+                    <h3 style="color: #ffb300;">🌟 Перерождение</h3>
+                    <p style="color: #ffd54f;">Нужна Сила Депрессии: <span id="rebirth-req-display">25</span> ур.</p>
+                    <p style="font-size: 11px; color: #fff;">Сброс ради множителя +50% к доходу и нового фото!</p>
+                </div>
+                <button class="upgrade-btn rebirth-btn" id="btn-rebirth" onclick="doRebirth()">Сброс</button>
+            </div>
+
+            <!-- Сила депрессии -->
             <div class="upgrade-card">
                 <div class="upgrade-info">
                     <h3>💔 Сила депрессии</h3>
@@ -172,7 +206,8 @@
                 </div>
                 <button class="upgrade-btn" id="btn-click" onclick="buyUpgrade('click')"><span id="cost-click">10</span></button>
             </div>
-            <!-- Избиение стратегов (бывший Симулятор) -->
+            
+            <!-- Избиение стратегов -->
             <div class="upgrade-card">
                 <div class="upgrade-info">
                     <h3>🥊 Избиение стратегов</h3>
@@ -180,6 +215,7 @@
                 </div>
                 <button class="upgrade-btn" id="btn-sim" onclick="buyUpgrade('sim')"><span id="cost-sim">50</span></button>
             </div>
+            
             <!-- Стратеги-клоуны -->
             <div class="upgrade-card">
                 <div class="upgrade-info">
@@ -189,7 +225,8 @@
                 </div>
                 <button class="upgrade-btn" id="btn-strategy" onclick="buyUpgrade('strategy')"><span id="cost-strategy">250</span></button>
             </div>
-            <!-- Еще один год страданий (бывший Контракт) -->
+            
+            <!-- Еще один год страданий -->
             <div class="upgrade-card">
                 <div class="upgrade-info">
                     <h3>📝 Еще один год страданий</h3>
@@ -204,8 +241,8 @@
     <!-- ВКЛАДКА 3: ИНФО -->
     <div id="tab-info" class="tab-content">
         <h2>Информация</h2>
-        <p style="color: #aaa; width: 80%; line-height: 1.5;">Нажимайте на Шарля Леклера, копите очки депрессии, прокачивайте пассивный доход в час и выживайте в Ferrari как можете!</p>
-        <p style="margin-top: 20px; font-size: 14px; color: #555;">Версия игры: 2.1</p>
+        <p style="color: #aaa; width: 80%; line-height: 1.5;">Нажимайте на Шарля Леклера, копите очки депрессии, прокачивайте пассивный доход в час. Выполняйте многоступенчатые перерождения, чтобы открыть все депрессивные лики Шарля!</p>
+        <p style="margin-top: 20px; font-size: 14px; color: #555;">Версия игры: 3.5 (Multi-Rebirth Update)</p>
     </div>
 
     <!-- НИЖНЕЕ МЕНЮ -->
@@ -226,8 +263,13 @@
         tg.expand();
 
         let score = 0;
-        let pbc = 1;
-        let pbh = 0;
+        let pbc = 1; 
+        let pbh = 0; 
+        let rebirths = 0; 
+        let multiplier = 1.0;
+
+        // Массив с требованиями для уровней перерождений
+        const rebirthRequirements = [25, 100, 250, 500, 1000];
 
         let upgrades = {
             click: { lvl: 1, baseCost: 10, costMultiplier: 1.5, currentCost: 10 },
@@ -239,31 +281,61 @@
         function switchTab(tabId, button) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            
             document.getElementById('tab-' + tabId).classList.add('active');
             button.classList.add('active');
         }
 
+        // Функция определения текущего требования для следующего реберха
+        function getRequiredLevel() {
+            if (rebirths < rebirthRequirements.length) {
+                return rebirthRequirements[rebirths];
+            }
+            // Если перерождений больше 5, шаг увеличивается автоматически (+500 уровней каждый раз)
+            return rebirthRequirements[rebirthRequirements.length - 1] + ((rebirths - 4) * 500);
+        }
+
         function updateUI() {
+            multiplier = 1 + (rebirths * 0.5); 
+
             document.getElementById('score-display').innerText = Math.floor(score);
-            document.getElementById('pbc-display').innerText = "+" + pbc;
-            document.getElementById('pbh-display').innerText = "+" + pbh;
+            document.getElementById('pbc-display').innerText = "+" + (pbc * multiplier).toFixed(1);
+            document.getElementById('pbh-display').innerText = "+" + (pbh * multiplier).toFixed(0);
+            document.getElementById('mult-display').innerText = multiplier.toFixed(1) + "x";
 
             document.getElementById('lvl-click').innerText = upgrades.click.lvl;
-            document.getElementById('val-click').innerText = pbc;
+            document.getElementById('val-click').innerText = (upgrades.click.lvl * multiplier).toFixed(1);
             document.getElementById('cost-click').innerText = upgrades.click.currentCost;
 
             document.getElementById('lvl-sim').innerText = upgrades.sim.lvl;
-            document.getElementById('val-sim').innerText = upgrades.sim.lvl * upgrades.sim.income;
+            document.getElementById('val-sim').innerText = (upgrades.sim.lvl * upgrades.sim.income * multiplier).toFixed(0);
             document.getElementById('cost-sim').innerText = upgrades.sim.currentCost;
 
             document.getElementById('lvl-strategy').innerText = upgrades.strategy.lvl;
-            document.getElementById('val-strategy').innerText = upgrades.strategy.lvl * upgrades.strategy.income;
+            document.getElementById('val-strategy').innerText = (upgrades.strategy.lvl * upgrades.strategy.income * multiplier).toFixed(0);
             document.getElementById('cost-strategy').innerText = upgrades.strategy.currentCost;
 
             document.getElementById('lvl-contract').innerText = upgrades.contract.lvl;
-            document.getElementById('val-contract').innerText = upgrades.contract.lvl * upgrades.contract.income;
+            document.getElementById('val-contract').innerText = (upgrades.contract.lvl * upgrades.contract.income * multiplier).toFixed(0);
             document.getElementById('cost-contract').innerText = upgrades.contract.currentCost;
+
+            document.getElementById('rebirth-req-display').innerText = getRequiredLevel();
+
+            // Динамическая смена фото в зависимости от количества реберхов
+            const imgEl = document.getElementById('leclerc');
+            if (rebirths > 0) {
+                document.getElementById('rebirth-status').style.display = 'block';
+                document.getElementById('rebirth-count-main').innerText = rebirths;
+                
+                // Если реберхов 1-5, подставляем файл charles_rebirth1.png и т.д.
+                if (rebirths <= 5) {
+                    imgEl.src = "charles_rebirth" + rebirths + ".png";
+                } else {
+                    imgEl.src = "charles_rebirth5.png"; // Максимальная картинка для всех уровней выше 5
+                }
+            } else {
+                document.getElementById('rebirth-status').style.display = 'none';
+                imgEl.src = "charles.png";
+            }
 
             checkButtons();
         }
@@ -271,14 +343,15 @@
         function checkButtons() {
             for (let key in upgrades) {
                 let btn = document.getElementById('btn-' + key);
-                if (btn) {
-                    btn.disabled = score < upgrades[key].currentCost;
-                }
+                if (btn) btn.disabled = score < upgrades[key].currentCost;
             }
+
+            let rebirthBtn = document.getElementById('btn-rebirth');
+            rebirthBtn.disabled = upgrades.click.lvl < getRequiredLevel();
         }
 
         document.getElementById('leclerc').onclick = () => {
-            score += pbc;
+            score += pbc * multiplier;
             document.getElementById('score-display').innerText = Math.floor(score);
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
             checkButtons();
@@ -310,31 +383,50 @@
                   (upgrades.contract.lvl * upgrades.contract.income);
         }
 
+        function doRebirth() {
+            let req = getRequiredLevel();
+            if (upgrades.click.lvl >= req) {
+                rebirths += 1;
+                
+                score = 0;
+                pbc = 1;
+                pbh = 0;
+                
+                upgrades.click = { lvl: 1, baseCost: 10, costMultiplier: 1.5, currentCost: 10 };
+                upgrades.sim = { lvl: 0, baseCost: 50, costMultiplier: 1.6, currentCost: 50, income: 5 };
+                upgrades.strategy = { lvl: 0, baseCost: 250, costMultiplier: 1.7, currentCost: 250, income: 40 };
+                upgrades.contract = { lvl: 0, baseCost: 1200, costMultiplier: 1.8, currentCost: 1200, income: 200 };
+
+                tg.showAlert("Вы успешно переродились! Множитель увеличен, лицо Шарля стало еще грустнее.");
+                
+                updateUI();
+                saveData();
+                switchTab('clicker', document.querySelectorAll('.nav-item')[0]);
+            }
+        }
+
         setInterval(() => {
             if (pbh > 0) {
-                score += pbh / 3600;
+                score += (pbh * multiplier) / 3600;
                 document.getElementById('score-display').innerText = Math.floor(score);
                 checkButtons();
             }
         }, 1000);
 
         function saveData() {
-            let state = { score, upgrades, pbc, pbh };
-            localStorage.setItem('leclerc_state', JSON.stringify(state));
-
-            if (tg.CloudStorage) {
-                tg.CloudStorage.setItem('game_state', JSON.stringify(state));
-            }
+            let state = { score, upgrades, pbc, pbh, rebirths };
+            localStorage.setItem('leclerc_state_v4', JSON.stringify(state));
+            if (tg.CloudStorage) tg.CloudStorage.setItem('game_state_v4', JSON.stringify(state));
         }
 
         function loadData() {
-            let localData = localStorage.getItem('leclerc_state');
+            let localData = localStorage.getItem('leclerc_state_v4');
             if (localData) {
                 restoreState(JSON.parse(localData));
             } else if (tg.CloudStorage) {
-                tg.CloudStorage.getItems(['game_state'], function(error, values) {
-                    if (!error && values.game_state) {
-                        restoreState(JSON.parse(values.game_state));
+                tg.CloudStorage.getItems(['game_state_v4'], function(error, values) {
+                    if (!error && values.game_state_v4) {
+                        restoreState(JSON.parse(values.game_state_v4));
                     }
                 });
             }
@@ -345,6 +437,7 @@
                 score = data.score || 0;
                 pbc = data.pbc || 1;
                 pbh = data.pbh || 0;
+                rebirths = data.rebirths || 0;
                 if (data.upgrades) {
                     for (let key in data.upgrades) {
                         if (upgrades[key]) {
