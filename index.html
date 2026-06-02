@@ -164,6 +164,9 @@
 </head>
 <body>
 
+    <!-- Звуковой элемент -->
+    <audio id="stupid-sound" src="stupid.mp3" preload="auto"></audio>
+
     <!-- ВЕРХНЯЯ ПАНЕЛЬ СТАТИСТИКИ -->
     <div class="header-stats">
         <div class="stat-box">Клик <span class="red" id="pbc-display">+1</span></div>
@@ -241,8 +244,8 @@
     <!-- ВКЛАДКА 3: ИНФО -->
     <div id="tab-info" class="tab-content">
         <h2>Информация</h2>
-        <p style="color: #aaa; width: 80%; line-height: 1.5;">Нажимайте на Шарля Леклера, копите очки депрессии, прокачивайте пассивный доход в час. Выполняйте многоступенчатые перерождения, чтобы открыть все депрессивные лики Шарля!</p>
-        <p style="margin-top: 20px; font-size: 14px; color: #555;">Версия игры: 3.5 (Multi-Rebirth Update)</p>
+        <p style="color: #aaa; width: 80%; line-height: 1.5;">Нажимайте на Шарля Леклера, копите очки депрессии, прокачивайте пассивный доход в час. Доход капает даже когда вы не в сети!</p>
+        <p style="margin-top: 20px; font-size: 14px; color: #555;">Версия игры: 4.0 (Offline Update)</p>
     </div>
 
     <!-- НИЖНЕЕ МЕНЮ -->
@@ -268,7 +271,6 @@
         let rebirths = 0; 
         let multiplier = 1.0;
 
-        // Массив с требованиями для уровней перерождений
         const rebirthRequirements = [25, 100, 250, 500, 1000];
 
         let upgrades = {
@@ -285,12 +287,10 @@
             button.classList.add('active');
         }
 
-        // Функция определения текущего требования для следующего реберха
         function getRequiredLevel() {
             if (rebirths < rebirthRequirements.length) {
                 return rebirthRequirements[rebirths];
             }
-            // Если перерождений больше 5, шаг увеличивается автоматически (+500 уровней каждый раз)
             return rebirthRequirements[rebirthRequirements.length - 1] + ((rebirths - 4) * 500);
         }
 
@@ -320,17 +320,14 @@
 
             document.getElementById('rebirth-req-display').innerText = getRequiredLevel();
 
-            // Динамическая смена фото в зависимости от количества реберхов
             const imgEl = document.getElementById('leclerc');
             if (rebirths > 0) {
                 document.getElementById('rebirth-status').style.display = 'block';
                 document.getElementById('rebirth-count-main').innerText = rebirths;
-                
-                // Если реберхов 1-5, подставляем файл charles_rebirth1.png и т.д.
                 if (rebirths <= 5) {
                     imgEl.src = "charles_rebirth" + rebirths + ".png";
                 } else {
-                    imgEl.src = "charles_rebirth5.png"; // Максимальная картинка для всех уровней выше 5
+                    imgEl.src = "charles_rebirth5.png";
                 }
             } else {
                 document.getElementById('rebirth-status').style.display = 'none';
@@ -345,9 +342,15 @@
                 let btn = document.getElementById('btn-' + key);
                 if (btn) btn.disabled = score < upgrades[key].currentCost;
             }
-
             let rebirthBtn = document.getElementById('btn-rebirth');
             rebirthBtn.disabled = upgrades.click.lvl < getRequiredLevel();
+        }
+
+        // Функция воспроизведения «I am stupid»
+        function playStupidSound() {
+            const sound = document.getElementById('stupid-sound');
+            sound.currentTime = 0; // Сброс на начало, чтобы можно было кликать быстро подряд
+            sound.play().catch(e => console.log("Браузер заблокировал звук до первого клика по экрану"));
         }
 
         document.getElementById('leclerc').onclick = () => {
@@ -371,6 +374,7 @@
                     recalculatePassiveIncome();
                 }
 
+                playStupidSound(); // Проигрываем звук при успешном апгрейде!
                 updateUI();
                 if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                 saveData();
@@ -387,7 +391,6 @@
             let req = getRequiredLevel();
             if (upgrades.click.lvl >= req) {
                 rebirths += 1;
-                
                 score = 0;
                 pbc = 1;
                 pbh = 0;
@@ -397,6 +400,7 @@
                 upgrades.strategy = { lvl: 0, baseCost: 250, costMultiplier: 1.7, currentCost: 250, income: 40 };
                 upgrades.contract = { lvl: 0, baseCost: 1200, costMultiplier: 1.8, currentCost: 1200, income: 200 };
 
+                playStupidSound();
                 tg.showAlert("Вы успешно переродились! Множитель увеличен, лицо Шарля стало еще грустнее.");
                 
                 updateUI();
@@ -414,19 +418,26 @@
         }, 1000);
 
         function saveData() {
-            let state = { score, upgrades, pbc, pbh, rebirths };
-            localStorage.setItem('leclerc_state_v4', JSON.stringify(state));
-            if (tg.CloudStorage) tg.CloudStorage.setItem('game_state_v4', JSON.stringify(state));
+            let state = { 
+                score, 
+                upgrades, 
+                pbc, 
+                pbh, 
+                rebirths,
+                lastTime: Date.now() // Запоминаем точное время выхода/сохранения
+            };
+            localStorage.setItem('leclerc_state_v5', JSON.stringify(state));
+            if (tg.CloudStorage) tg.CloudStorage.setItem('game_state_v5', JSON.stringify(state));
         }
 
         function loadData() {
-            let localData = localStorage.getItem('leclerc_state_v4');
+            let localData = localStorage.getItem('leclerc_state_v5');
             if (localData) {
                 restoreState(JSON.parse(localData));
             } else if (tg.CloudStorage) {
-                tg.CloudStorage.getItems(['game_state_v4'], function(error, values) {
-                    if (!error && values.game_state_v4) {
-                        restoreState(JSON.parse(values.game_state_v4));
+                tg.CloudStorage.getItems(['game_state_v5'], function(error, values) {
+                    if (!error && values.game_state_v5) {
+                        restoreState(JSON.parse(values.game_state_v5));
                     }
                 });
             }
@@ -446,7 +457,29 @@
                         }
                     }
                 }
+                
                 updateUI();
+
+                // РАСЧЕТ ОФЛАЙН-ДОХОДА
+                if (data.lastTime && pbh > 0) {
+                    let currentTime = Date.now();
+                    let secondsOffline = Math.floor((currentTime - data.lastTime) / 1000);
+                    
+                    if (secondsOffline > 10) { // Если игрока не было больше 10 секунд
+                        let currentMult = 1 + (rebirths * 0.5);
+                        let offlineEarnings = Math.floor(((pbh * currentMult) / 3600) * secondsOffline);
+                        
+                        if (offlineEarnings > 0) {
+                            score += offlineEarnings;
+                            document.getElementById('score-display').innerText = Math.floor(score);
+                            
+                            // Красивое всплывающее окошко в Telegram
+                            setTimeout(() => {
+                                tg.showAlert(`Пока тебя не было, стратеги Ferrari накосячили ещё больше!\n\nТебе начислено пассивного дохода: +${offlineEarnings} очков депрессии!`);
+                            }, 500);
+                        }
+                    }
+                }
             }
         }
 
